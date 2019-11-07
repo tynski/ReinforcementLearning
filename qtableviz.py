@@ -1,4 +1,3 @@
-from mpl_toolkits.mplot3d import axes3d
 import matplotlib.pyplot as plt
 from matplotlib import style
 import numpy as np
@@ -19,9 +18,8 @@ ax1 = fig.add_subplot(311)
 ax2 = fig.add_subplot(312)
 ax3 = fig.add_subplot(313)
 
-i = 24999
-q_table = np.load(f"qtables/{i}-qtable.npy")
-
+i = 15000
+q_table = np.load("qtables/{}-qtable.npy".format(i))
 
 for x, x_vals in enumerate(q_table):
     for y, y_vals in enumerate(x_vals):
