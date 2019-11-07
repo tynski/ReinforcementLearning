@@ -6,19 +6,21 @@ env = gym.make("MountainCar-v0")
 
 LEARNING_RATE = 0.1
 DISCOUNT = 0.95  # how important we find future actions value between (0,1)
-EPISODES = 2000
+EPISODES = 25000
+
+SHOW_EVERY = 3000
+
 # Exploration settings
-epsilon = 0.5
+epsilon = 1
 START_EPSILON_DECAYING = 1
 
 END_EPSILON_DECAYING = EPISODES // 2  # always divide into integer
 epsilon_decay_value = epsilon / (END_EPSILON_DECAYING - START_EPSILON_DECAYING)
 
-SHOW_EVERY = 500
 
 # Discretization
 # make continous values more discrete, split them into bins
-DISCRETE_OS_SIZE = [20] * len(env.observation_space.high)
+DISCRETE_OS_SIZE = [40] * len(env.observation_space.high)
 discrete_os_win_size = (env.observation_space.high -
                         env.observation_space.low)/DISCRETE_OS_SIZE
 
@@ -76,7 +78,6 @@ for episode in range(EPISODES):
             q_table[discrete_state + (action, )] = new_q
 
         elif new_state[0] >= env.goal_position:
-            print('We made it on episode {}.'.format(episode))
             q_table[discrete_state + (action, )] = 0
 
         discrete_state = new_discrete_state
@@ -94,9 +95,6 @@ for episode in range(EPISODES):
         aggr_ep_rewards['min'].append(min(ep_rewards[-SHOW_EVERY:]))
         aggr_ep_rewards['max'].append(max(ep_rewards[-SHOW_EVERY:]))
 
-        print('Episode: {} avg: {} min: {} max: {}'.format(episode, average_reward, max(
-            ep_rewards[-SHOW_EVERY:]), min(ep_rewards[-SHOW_EVERY:])))
-
 
 env.close()
 
@@ -106,4 +104,5 @@ plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['min'], label="min")
 plt.xlabel('Episode')
 plt.ylabel('Rewards')
 plt.legend(loc=4)
+plt.grid(True)
 plt.show()
