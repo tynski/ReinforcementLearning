@@ -1,18 +1,19 @@
 import gym
 import numpy as np
+import matplotlib.pyplot as plt
 
 env = gym.make("MountainCar-v0")
 
 LEARNING_RATE = 0.1
 DISCOUNT = 0.95  # how important we find future actions value between (0,1)
-EPISODES = 25000
-SHOW_EVERY = 2000
+EPISODES = 2000
+
+SHOW_EVERY = 500
 
 # make continous values more discrete, split them into bins
 DISCRETE_OS_SIZE = [20] * len(env.observation_space.high)
-print(DISCRETE_OS_SIZE)
 discrete_os_win_size = (env.observation_space.high -
-                        env.observation_space.low) / DISCRETE_OS_SIZE
+                        env.observation_space.low)/DISCRETE_OS_SIZE
 
 epsilon = 0.5
 START_EPSILON_DECAYING = 1
@@ -22,6 +23,9 @@ epsilon_decay_value = epsilon / (END_EPSILON_DECAYING - START_EPSILON_DECAYING)
 q_table = np.random.uniform(
     low=-2, high=0, size=(DISCRETE_OS_SIZE + [env.action_space.n]))
 
+ep_rewards = []
+aggr_ep_rewards = {'ep': [], 'avg': [], 'min': [], 'max': []}
+
 
 def get_discrete_state(state):
     discrete_state = (state - env.observation_space.low) / discrete_os_win_size
@@ -29,14 +33,15 @@ def get_discrete_state(state):
 
 
 for episode in range(EPISODES):
+    discrete_state = get_discrete_state(env.reset())
+    done = False
+
+    episode_reward = 0
+
     if episode % SHOW_EVERY == 0:
         render = True
     else:
         render = False
-
-    discrete_state = get_discrete_state(env.reset())
-
-    done = False
 
     while not done:
         if np.random.random() > epsilon:
@@ -45,16 +50,24 @@ for episode in range(EPISODES):
             action = np.random.randint(0, env.action_space.n)
 
         new_state, reward, done, _ = env.step(action)
-        new_discrete_state = get_discrete_state(new_state)
-        if render:
-            env.render()
-        if not done:
-            max_future_q = np.max(q_table[new_discrete_state])
-            current_q = q_table[discrete_state + (action, )]
+        episode_reward += reward
 
+        new_discrete_state = get_discrete_state(new_state)
+
+        if render % SHOW_EVERY:
+            env.render()
+
+        if not done:
+            # Max possible Q value in next step
+            max_future_q = np.max(q_table[new_discrete_state])
+            # Current Q value
+            current_q = q_table[discrete_state + (action, )]
+            # New Q value for current state and action
             new_q = (1 - LEARNING_RATE) * current_q + \
                 LEARNING_RATE * (reward + DISCOUNT * max_future_q)
+            # Update Q table with new Q value
             q_table[discrete_state + (action, )] = new_q
+
         elif new_state[0] >= env.goal_position:
             print('We made it on episode {}.'.format(episode))
             q_table[discrete_state + (action, )] = 0
@@ -64,4 +77,24 @@ for episode in range(EPISODES):
     if END_EPSILON_DECAYING >= episode >= START_EPSILON_DECAYING:
         epsilon -= epsilon_decay_value
 
+    ep_rewards.append(episode_reward)
+
+    if not episode % SHOW_EVERY:
+        average_reward = sum(
+            ep_rewards[-SHOW_EVERY:])/len(ep_rewards[-SHOW_EVERY:])
+        aggr_ep_rewards['ep'].append(episode)
+        aggr_ep_rewards['avg'].append(average_reward)
+        aggr_ep_rewards['min'].append(min(ep_rewards[-SHOW_EVERY:]))
+        aggr_ep_rewards['max'].append(max(ep_rewards[-SHOW_EVERY:]))
+
+        print('Episode: {} avg: {} min: {} max: {}'.format(episode, average_reward, max(
+            ep_rewards[-SHOW_EVERY:]), min(ep_rewards[-SHOW_EVERY:])))
+
+
 env.close()
+
+plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['avg'], label="avg")
+plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['max'], label="max")
+plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['min'], label="min")
+plt.legend(loc=4)
+plt.show()
