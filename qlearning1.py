@@ -6,11 +6,17 @@ env = gym.make("MountainCar-v0")
 
 LEARNING_RATE = 0.1
 DISCOUNT = 0.95  # how important we find future actions value between (0,1)
-EPISODES = 25000
+EPISODES = 2000
+# Exploration settings
+epsilon = 0.5
+START_EPSILON_DECAYING = 1
 
-SHOW_EVERY = 3000
+END_EPSILON_DECAYING = EPISODES // 2  # always divide into integer
+epsilon_decay_value = epsilon / (END_EPSILON_DECAYING - START_EPSILON_DECAYING)
 
-#Discretization
+SHOW_EVERY = 500
+
+# Discretization
 # make continous values more discrete, split them into bins
 DISCRETE_OS_SIZE = [20] * len(env.observation_space.high)
 discrete_os_win_size = (env.observation_space.high -
@@ -22,12 +28,6 @@ def get_discrete_state(state):
     # we use this tuple to look up the 3 Q values for the available actions in the q-table
     return tuple(discrete_state.astype(np.int))
 
-
-#Exploration settings
-epsilon = 1
-START_EPSILON_DECAYING = 1
-END_EPSILON_DECAYING = EPISODES // 2  # always divide into integer
-epsilon_decay_value = epsilon / (END_EPSILON_DECAYING - START_EPSILON_DECAYING)
 
 q_table = np.random.uniform(
     low=-2, high=0, size=(DISCRETE_OS_SIZE + [env.action_space.n]))
@@ -59,7 +59,7 @@ for episode in range(EPISODES):
 
         new_discrete_state = get_discrete_state(new_state)
 
-        #make training faster
+        # make training faster
         if render % SHOW_EVERY:
             env.render()
 
@@ -103,5 +103,7 @@ env.close()
 plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['avg'], label="avg")
 plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['max'], label="max")
 plt.plot(aggr_ep_rewards['ep'], aggr_ep_rewards['min'], label="min")
+plt.xlabel('Episode')
+plt.ylabel('Rewards')
 plt.legend(loc=4)
 plt.show()
