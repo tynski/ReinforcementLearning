@@ -93,7 +93,9 @@ for episode in range(EPISODES):
         aggr_ep_rewards['ep'].append(episode)
         aggr_ep_rewards['avg'].append(average_reward)
         aggr_ep_rewards['min'].append(min(ep_rewards[-SHOW_EVERY:]))
-        aggr_ep_rewards['max'].append(max(ep_rewards[-SHOW_EVERY:]))
+        aggr_ep_rewards['max'].append(max(ep_rewards[-SHOW_EVERY:]))  
+    if episode % 100 == 0:
+        np.save("qtables/{}-qtable.npy".format(episode), q_table)
 
 
 env.close()
