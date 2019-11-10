@@ -18,7 +18,7 @@ ax1 = fig.add_subplot(311)
 ax2 = fig.add_subplot(312)
 ax3 = fig.add_subplot(313)
 
-i = 15000
+i = 100 
 q_table = np.load("qtables/{}-qtable.npy".format(i))
 
 for x, x_vals in enumerate(q_table):

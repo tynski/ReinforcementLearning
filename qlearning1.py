@@ -1,14 +1,15 @@
 import gym
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
 env = gym.make("MountainCar-v0")
-
-LEARNING_RATE = 0.1
+# Hiperparemeters
+LEARNING_RATE = 0.2
 DISCOUNT = 0.95  # how important we find future actions value between (0,1)
-EPISODES = 25000
+EPISODES = 4000
 
-SHOW_EVERY = 3000
+SHOW_EVERY = 500
 
 # Exploration settings
 epsilon = 1
@@ -17,12 +18,14 @@ START_EPSILON_DECAYING = 1
 END_EPSILON_DECAYING = EPISODES // 2  # always divide into integer
 epsilon_decay_value = epsilon / (END_EPSILON_DECAYING - START_EPSILON_DECAYING)
 
+save_qtable = True
+render = False
 
 # Discretization
 # make continous values more discrete, split them into bins
-DISCRETE_OS_SIZE = [40] * len(env.observation_space.high)
+DISCRETE_OS_SIZE = [20] * len(env.observation_space.high)
 discrete_os_win_size = (env.observation_space.high -
-                        env.observation_space.low)/DISCRETE_OS_SIZE
+                        env.observation_space.low) / DISCRETE_OS_SIZE
 
 
 def get_discrete_state(state):
@@ -31,8 +34,21 @@ def get_discrete_state(state):
     return tuple(discrete_state.astype(np.int))
 
 
-q_table = np.random.uniform(
-    low=-2, high=0, size=(DISCRETE_OS_SIZE + [env.action_space.n]))
+if save_qtable:
+    folder = "/home/bt/Documents/Studia/DLR/ReinforcementLearnig/qtables"
+    for the_file in os.listdir(folder):
+        file_path = os.path.join(folder, the_file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print(e)
+
+
+q_table = np.random.uniform(low=-2,
+                            high=0,
+                            size=(DISCRETE_OS_SIZE + [env.action_space.n]))
+print(q_table.shape)
 
 ep_rewards = []
 aggr_ep_rewards = {'ep': [], 'avg': [], 'min': [], 'max': []}
@@ -42,12 +58,7 @@ for episode in range(EPISODES):
     done = False
 
     episode_reward = 0
-
-    if episode % SHOW_EVERY == 0:
-        render = True
-    else:
-        render = False
-
+    # Off-policy q-learning algo learns from actions that are outside the current policy
     while not done:
         if np.random.random() > epsilon:
             # Get action from Q table
@@ -62,10 +73,10 @@ for episode in range(EPISODES):
         new_discrete_state = get_discrete_state(new_state)
 
         # make training faster
-        if render % SHOW_EVERY:
+        if render & (episode % SHOW_EVERY == 0):
             env.render()
 
-        # If simulation did not end yet after last step - update Q table
+        # If simulation did not end update Q table
         if not done:
             # Max possible Q value in next step
             max_future_q = np.max(q_table[new_discrete_state])
@@ -76,11 +87,12 @@ for episode in range(EPISODES):
                 LEARNING_RATE * (reward + DISCOUNT * max_future_q)
             # Update Q table with new Q value
             q_table[discrete_state + (action, )] = new_q
-
+        # Restart agent
         elif new_state[0] >= env.goal_position:
             q_table[discrete_state + (action, )] = 0
 
         discrete_state = new_discrete_state
+
     # Decaying is being done every episode if episode number is within decaying range
     if END_EPSILON_DECAYING >= episode >= START_EPSILON_DECAYING:
         epsilon -= epsilon_decay_value
@@ -88,15 +100,13 @@ for episode in range(EPISODES):
     ep_rewards.append(episode_reward)
 
     if not episode % SHOW_EVERY:
-        average_reward = sum(
-            ep_rewards[-SHOW_EVERY:])/len(ep_rewards[-SHOW_EVERY:])
         aggr_ep_rewards['ep'].append(episode)
-        aggr_ep_rewards['avg'].append(average_reward)
+        aggr_ep_rewards['avg'].append(np.mean(ep_rewards[-SHOW_EVERY:]))
         aggr_ep_rewards['min'].append(min(ep_rewards[-SHOW_EVERY:]))
-        aggr_ep_rewards['max'].append(max(ep_rewards[-SHOW_EVERY:]))  
-    if episode % 100 == 0:
-        np.save("qtables/{}-qtable.npy".format(episode), q_table)
+        aggr_ep_rewards['max'].append(max(ep_rewards[-SHOW_EVERY:]))
 
+    if episode % 100 == 0 & save_qtable:
+        np.save("qtables/{}-qtable.npy".format(episode), q_table)
 
 env.close()
 
