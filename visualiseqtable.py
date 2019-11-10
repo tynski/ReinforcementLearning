@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib import style
 import numpy as np
 import os
+import json
 
 style.use('ggplot')
 
@@ -25,7 +26,12 @@ for the_file in os.listdir(folder):
 
 fig = plt.figure(figsize=(12, 9))
 
-for i in range(0, 4000, 100):
+data = {}
+
+with open('hiperparameters.json') as fp:
+    data = json.load(fp)
+
+for i in range(0, data['episodes'], 10):
     ax1 = fig.add_subplot(311)
     ax2 = fig.add_subplot(312)
     ax3 = fig.add_subplot(313)

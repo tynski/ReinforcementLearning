@@ -12,7 +12,7 @@ with open('hiperparameters.json') as fp:
     data = json.load(fp)
 
 # Hiperparemeters
-LEARNING_RATE = data['learing_rate']
+LEARNING_RATE = data['learning_rate']
 # how important we find future actions value between (0,1)
 DISCOUNT = data['discount']
 EPISODES = data['episodes']
@@ -24,6 +24,7 @@ START_EPSILON_DECAYING = data['start_epsilon_decaying']
 END_EPSILON_DECAYING = data['end_epsilon_decaying']
 epsilon_decay_value = epsilon / (END_EPSILON_DECAYING - START_EPSILON_DECAYING)
 
+SHOW_EVERY = 500
 save_qtable = True
 
 # Discretization
