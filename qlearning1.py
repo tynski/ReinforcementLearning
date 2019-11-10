@@ -2,20 +2,28 @@ import gym
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import json
 
 env = gym.make("MountainCar-v0")
+
+data = {}
+
+with open('hiperparameters.json', 'w') as fp:
+    json.dump(data, fp)
+
 # Hiperparemeters
-LEARNING_RATE = 0.2
-DISCOUNT = 0.95  # how important we find future actions value between (0,1)
-EPISODES = 4000
+LEARNING_RATE = data['learing_rate']
+# how important we find future actions value between (0,1)
+DISCOUNT = data['discount']
+EPISODES = data['episodes']
 
 SHOW_EVERY = 500
 
 # Exploration settings
-epsilon = 1
-START_EPSILON_DECAYING = 1
+epsilon = data['epsilon']
+START_EPSILON_DECAYING = data['start_epsilon_decaying']
 
-END_EPSILON_DECAYING = EPISODES // 2  # always divide into integer
+END_EPSILON_DECAYING = data['end_epsilon_decaying']
 epsilon_decay_value = epsilon / (END_EPSILON_DECAYING - START_EPSILON_DECAYING)
 
 save_qtable = True
@@ -43,7 +51,6 @@ if save_qtable:
                 os.unlink(file_path)
         except Exception as e:
             print(e)
-
 
 q_table = np.random.uniform(low=-2,
                             high=0,
@@ -105,7 +112,7 @@ for episode in range(EPISODES):
         aggr_ep_rewards['min'].append(min(ep_rewards[-SHOW_EVERY:]))
         aggr_ep_rewards['max'].append(max(ep_rewards[-SHOW_EVERY:]))
 
-    if episode % 100 == 0 & save_qtable:
+    if episode % 10 == 0 & save_qtable:
         np.save("qtables/{}-qtable.npy".format(episode), q_table)
 
 env.close()
