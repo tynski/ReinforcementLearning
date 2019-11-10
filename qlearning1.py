@@ -8,16 +8,14 @@ env = gym.make("MountainCar-v0")
 
 data = {}
 
-with open('hiperparameters.json', 'w') as fp:
-    json.dump(data, fp)
+with open('hiperparameters.json') as fp:
+    data = json.load(fp)
 
 # Hiperparemeters
 LEARNING_RATE = data['learing_rate']
 # how important we find future actions value between (0,1)
 DISCOUNT = data['discount']
 EPISODES = data['episodes']
-
-SHOW_EVERY = 500
 
 # Exploration settings
 epsilon = data['epsilon']
@@ -27,7 +25,6 @@ END_EPSILON_DECAYING = data['end_epsilon_decaying']
 epsilon_decay_value = epsilon / (END_EPSILON_DECAYING - START_EPSILON_DECAYING)
 
 save_qtable = True
-render = False
 
 # Discretization
 # make continous values more discrete, split them into bins
@@ -41,7 +38,7 @@ def get_discrete_state(state):
     # we use this tuple to look up the 3 Q values for the available actions in the q-table
     return tuple(discrete_state.astype(np.int))
 
-
+# clear qtable dir
 if save_qtable:
     folder = "/home/bt/Documents/Studia/DLR/ReinforcementLearnig/qtables"
     for the_file in os.listdir(folder):
@@ -55,7 +52,7 @@ if save_qtable:
 q_table = np.random.uniform(low=-2,
                             high=0,
                             size=(DISCRETE_OS_SIZE + [env.action_space.n]))
-print(q_table.shape)
+
 
 ep_rewards = []
 aggr_ep_rewards = {'ep': [], 'avg': [], 'min': [], 'max': []}
@@ -78,10 +75,6 @@ for episode in range(EPISODES):
         episode_reward += reward
 
         new_discrete_state = get_discrete_state(new_state)
-
-        # make training faster
-        if render & (episode % SHOW_EVERY == 0):
-            env.render()
 
         # If simulation did not end update Q table
         if not done:
