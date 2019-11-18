@@ -1,6 +1,6 @@
 env/
 .vscode/
-qtables/
-plots/
-qtable_charts/
-qlearn.avi
+qlearning/qtables/
+qlearning/plots/
+qlearning/qtable_charts/
+qlearning/qlearn.avi
