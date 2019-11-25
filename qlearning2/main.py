@@ -12,15 +12,15 @@ style.use("ggplot")
 
 # env grid
 SIZE = 10
-HM_EPISODES = 10
+HM_EPISODES = 30000
 MOVE_PENALTY = 1
 ENEMY_PENALTY = 300
 FOOD_REWARD = 25
-epsilon = 0.0 #randomness
+epsilon = 0.9 #randomness
 EPS_DECAY = 0.9998
-SHOW_EVERY = 1
+SHOW_EVERY = 3000
 
-start_q_table = "qtables/qtable-1574374094.pickle"  # None or filename
+start_q_table = None  # None or filename
 
 LEARNING_RATE = 0.1
 DISCOUNT = 0.95
@@ -173,5 +173,7 @@ plt.ylabel(f"reward {SHOW_EVERY}")
 plt.xlabel("episode #")
 plt.show()
 
-with open(f"qtable-{int(time.time())}.pickle", "wb") as f:
-    pickle.dump(q_table, f)
+import os
+if (os.path.isdir('./qtables')):
+    with open(f"qtables/qtable-{int(time.time())}.pickle", "wb") as f:
+        pickle.dump(q_table, f)
