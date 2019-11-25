@@ -20,7 +20,7 @@ epsilon = 0.0 #randomness
 EPS_DECAY = 0.9998
 SHOW_EVERY = 1
 
-start_q_table = "qtable-1574374094.pickle"  # or filename
+start_q_table = "qtables/qtable-1574374094.pickle"  # None or filename
 
 LEARNING_RATE = 0.1
 DISCOUNT = 0.95
