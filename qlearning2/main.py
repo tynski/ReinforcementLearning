@@ -12,15 +12,15 @@ style.use("ggplot")
 
 # env grid
 SIZE = 10
-HM_EPISODES = 30000
+HM_EPISODES = 100000
 MOVE_PENALTY = 1
 ENEMY_PENALTY = 300
 FOOD_REWARD = 25
-epsilon = 0.9 #randomness
+epsilon = 1.0 #randomness
 EPS_DECAY = 0.9998
-SHOW_EVERY = 3000
+SHOW_EVERY = 10000
 
-start_q_table = None  # None or filename
+start_q_table = "./qtables/qtable-1574798801.pickle"  # None or filename
 
 LEARNING_RATE = 0.1
 DISCOUNT = 0.95
@@ -118,8 +118,8 @@ for episode in range(HM_EPISODES):
             action = np.random.randint(0, 4)
 
         player.action(action)
-        #enemy.move()
-        #food.move()
+        enemy.move()
+        food.move()
 
         if player.x == enemy.x and player.y == enemy.y:
             reward = -ENEMY_PENALTY
@@ -169,8 +169,8 @@ moving_avg = np.convolve(episode_rewards, np.ones(
     (SHOW_EVERY,)) / SHOW_EVERY, mode="valid")
 
 plt.plot([i for i in range(len(moving_avg))], moving_avg)
-plt.ylabel(f"reward {SHOW_EVERY}")
-plt.xlabel("episode #")
+plt.ylabel(f"reward")
+plt.xlabel("episode")
 plt.show()
 
 import os
