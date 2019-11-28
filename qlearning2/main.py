@@ -1,5 +1,6 @@
 # pip install opencv-python, pillow
 
+import os
 import numpy as np
 from PIL import Image
 import cv2
@@ -10,15 +11,18 @@ import time
 
 style.use("ggplot")
 
+save_table = False
+shwo_plot = False
+
 # env grid
 SIZE = 10
-HM_EPISODES = 100000
+HM_EPISODES = 10
 MOVE_PENALTY = 1
 ENEMY_PENALTY = 300
 FOOD_REWARD = 25
-epsilon = 1.0 #randomness
+epsilon = 0.0  # randomness
 EPS_DECAY = 0.9998
-SHOW_EVERY = 10000
+SHOW_EVERY = 1
 
 start_q_table = "./qtables/qtable-1574798801.pickle"  # None or filename
 
@@ -30,7 +34,7 @@ PLAYER_N = 1
 FOOD_N = 2
 ENEMY_N = 3
 
-#colors for each players
+# colors for each players
 d = {1: (255, 175, 0),
      2: (0, 255, 0),
      3: (0, 0, 255)}
@@ -38,13 +42,15 @@ d = {1: (255, 175, 0),
 
 class Agent:
     def __init__(self):
-        #spawn on random location
+        # spawn on random location
         self.x = np.random.randint(0, SIZE)
         self.y = np.random.randint(0, SIZE)
-    #debugging purpose
+    # debugging purpose
+
     def __str__(self):
         return f"{self.x}. {self.y}"
-    #observation purpose
+    # observation purpose
+
     def __sub__(self, other):
         return (self.x - other.x, self.y - other.y)
 
@@ -79,10 +85,11 @@ class Agent:
         elif self.y > SIZE-1:
             self.y = SIZE-1
 
+
 # keys: (player - enemy, player - food)
 # values: 4 actions
 if start_q_table is None:
-    #initialize q table
+    # initialize q table
     q_table = {}
     for x1 in range(-SIZE+1, SIZE):
         for y1 in range(-SIZE+1, SIZE):
@@ -144,9 +151,9 @@ for episode in range(HM_EPISODES):
 
         if show:
             env = np.zeros((SIZE, SIZE, 3), dtype=np.uint8)
-            env[food.y][food.x] = d[FOOD_N] # food tile
-            env[player.y][player.x] = d[PLAYER_N] # player tile
-            env[enemy.y][enemy.x] = d[ENEMY_N] # enemy tile
+            env[food.y][food.x] = d[FOOD_N]  # food tile
+            env[player.y][player.x] = d[PLAYER_N]  # player tile
+            env[enemy.y][enemy.x] = d[ENEMY_N]  # enemy tile
 
             img = Image.fromarray(env, "RGB")
             img = img.resize((300, 300))
@@ -168,12 +175,12 @@ for episode in range(HM_EPISODES):
 moving_avg = np.convolve(episode_rewards, np.ones(
     (SHOW_EVERY,)) / SHOW_EVERY, mode="valid")
 
-plt.plot([i for i in range(len(moving_avg))], moving_avg)
-plt.ylabel(f"reward")
-plt.xlabel("episode")
-plt.show()
+if (shwo_plot):
+    plt.plot([i for i in range(len(moving_avg))], moving_avg)
+    plt.ylabel(f"reward")
+    plt.xlabel("episode")
+    plt.show()
 
-import os
-if (os.path.isdir('./qtables')):
+if (os.path.isdir('./qtables') and save_table):
     with open(f"qtables/qtable-{int(time.time())}.pickle", "wb") as f:
         pickle.dump(q_table, f)
