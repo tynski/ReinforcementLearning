@@ -12,22 +12,23 @@ import time
 style.use("ggplot")
 
 save_table = False
-shwo_plot = False
+show_plot = False
 
 # env grid
 SIZE = 10
-HM_EPISODES = 10
+SHOW_EVERY = 1
+
 MOVE_PENALTY = 1
 ENEMY_PENALTY = 300
 FOOD_REWARD = 25
-epsilon = 0.0  # randomness
+
+HM_EPISODES = 10
+epsilon = 0.0
 EPS_DECAY = 0.9998
-SHOW_EVERY = 1
-
-start_q_table = "./qtables/qtable-1574798801.pickle"  # None or filename
-
 LEARNING_RATE = 0.1
 DISCOUNT = 0.95
+
+start_q_table = "./qtables/qtable-1574798801.pickle"  # None or filename
 
 # keys in dictionary
 PLAYER_N = 1
@@ -175,7 +176,7 @@ for episode in range(HM_EPISODES):
 moving_avg = np.convolve(episode_rewards, np.ones(
     (SHOW_EVERY,)) / SHOW_EVERY, mode="valid")
 
-if (shwo_plot):
+if (show_plot):
     plt.plot([i for i in range(len(moving_avg))], moving_avg)
     plt.ylabel(f"reward")
     plt.xlabel("episode")
