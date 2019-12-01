@@ -28,7 +28,7 @@ EPS_DECAY = 0.9998
 LEARNING_RATE = 0.1
 DISCOUNT = 0.95
 
-start_q_table = "./qtables/qtable-1574798801.pickle"  # None or filename
+start_q_table = "./qtables/qtable-1574799331.pickle"  # None or filename
 
 # keys in dictionary
 PLAYER_N = 1
