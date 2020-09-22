@@ -39,12 +39,13 @@ discrete_os_win_size = (env.observation_space.high -
 
 def get_discrete_state(state):
     discrete_state = (state - env.observation_space.low) / discrete_os_win_size
-    # we use this tuple to look up the 3 Q values for the available actions in the q-table
+    # we use this tuple to look up the 3 Q values for the available actions
     return tuple(discrete_state.astype(np.int))
+
 
 # clear qtable dir
 if save_qtable:
-    folder = "/home/bt/Documents/Studia/DLR/ReinforcementLearnig/qtables"
+    folder = "./qtables"
     for the_file in os.listdir(folder):
         file_path = os.path.join(folder, the_file)
         try:
@@ -66,7 +67,7 @@ for episode in range(EPISODES):
     done = False
 
     episode_reward = 0
-    # Off-policy q-learning algo learns from actions that are outside the current policy
+    # Off-policy q-learning algo learns from actions that are outside
     while not done:
         if np.random.random() > epsilon:
             # Get action from Q table
@@ -97,7 +98,6 @@ for episode in range(EPISODES):
 
         discrete_state = new_discrete_state
 
-    # Decaying is being done every episode if episode number is within decaying range
     if END_EPSILON_DECAYING >= episode >= START_EPSILON_DECAYING:
         epsilon -= epsilon_decay_value
 
