@@ -14,7 +14,7 @@ def get_q_color(value, vals):
         return "red", 0.3
 
 
-folder = "/home/bt/Documents/Studia/DLR/ReinforcementLearnig/qtable_charts"
+folder = "./qtable_charts"
 
 for the_file in os.listdir(folder):
     file_path = os.path.join(folder, the_file)

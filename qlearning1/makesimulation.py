@@ -13,6 +13,7 @@ def get_discrete_state(state):
     discrete_state = (state - env.observation_space.low) / discrete_os_win_size
     return tuple(discrete_state.astype(np.int))
 
+
 discrete_state = get_discrete_state(env.reset())
 
 done = False
