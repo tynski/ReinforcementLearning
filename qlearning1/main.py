@@ -2,14 +2,17 @@ import gym
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-import json
 
 env = gym.make("MountainCar-v0")
 
-data = {}
-
-with open('hiperparameters.json') as fp:
-    data = json.load(fp)
+data = {
+    "learning_rate": 0.2,
+    "discount": 0.95,
+    "episodes": 4000,
+    "epsilon": 1,
+    "start_epsilon_decaying": 1,
+    "end_epsilon_decaying": 2000
+}
 
 # Hiperparemeters
 LEARNING_RATE = data['learning_rate']
